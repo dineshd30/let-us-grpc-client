@@ -21,11 +21,11 @@ func New(cc grpc.ClientConnInterface) *GreeterClient {
 	}
 }
 
-func (g *GreeterClient) SayHelloUniary() {
+func (g *GreeterClient) SayHelloUnary() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := g.client.SayHelloUniary(ctx, &proto.HelloRequest{
+	res, err := g.client.SayHelloUnary(ctx, &proto.HelloRequest{
 		Message: "Dinesh",
 	})
 	if err != nil {
