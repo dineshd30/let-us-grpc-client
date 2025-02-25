@@ -22,29 +22,32 @@ func New(cc grpc.ClientConnInterface) *GreeterClient {
 }
 
 func (g *GreeterClient) SayHelloUnary() {
+	log.Println("say hello unary")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	name := "Hulk"
+	log.Println("sending uniary request:", name)
 	res, err := g.client.SayHelloUnary(ctx, &proto.HelloRequest{
-		Message: "Dinesh",
+		Message: name,
 	})
 	if err != nil {
 		log.Fatalf("failed to say hello to server: %v", err)
 	}
 
-	log.Printf("%s\n", res.Message)
+	log.Println("got response:", res.Message)
 }
 
 func (g *GreeterClient) SayHelloServerStreaming() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
 	defer cancel()
 
+	names := []string{
+		"Thor", "Hulk", "Ultron", "Iron Man", "Thanos",
+	}
+	log.Println("sending server streaming request:", names)
 	stream, err := g.client.SayHelloServerStreaming(ctx, &proto.NamesList{
-		Name: []string{
-			"Dinesh",
-			"Bob",
-			"Alice",
-		},
+		Name: names,
 	})
 	if err != nil {
 		log.Fatalf("failed to say hello to server: %v", err)
@@ -60,13 +63,13 @@ func (g *GreeterClient) SayHelloServerStreaming() {
 			log.Fatalf("failed to get message from server steam: %v", err)
 		}
 
-		log.Println(res.Message)
+		log.Println("got response:", res.Message)
 	}
 }
 
 func (g *GreeterClient) SayHelloClientStreaming() {
 	names := []string{
-		"Dinesh", "Bob", "Alice",
+		"Thor", "Hulk", "Black Widow", "Iron Man", "Captain Marvel",
 	}
 	stream, err := g.client.SayHelloClientStreaming(context.Background())
 	if err != nil {
@@ -78,10 +81,10 @@ func (g *GreeterClient) SayHelloClientStreaming() {
 			Message: name,
 		}
 
+		log.Println("sending client streaming request:", name)
 		if err := stream.Send(req); err != nil {
 			log.Fatalf("failed to send message to server via client stream: %v", err)
 		}
-		log.Printf("Sent the request message to server - %s", name)
 		time.Sleep(time.Second * 2)
 	}
 
@@ -89,12 +92,12 @@ func (g *GreeterClient) SayHelloClientStreaming() {
 	if err != nil {
 		log.Fatalf("failed to get response from server : %v", err)
 	}
-	log.Println(res.Name)
+	log.Println("got response:", res.Name)
 }
 
 func (g *GreeterClient) SayHelloBidirectionalStreaming() {
 	names := []string{
-		"Dinesh", "Bob", "Alice",
+		"Loki", "Hulk", "Black Widow", "Iron Man", "Captain Marvel",
 	}
 
 	stream, err := g.client.SayHelloBidirectionalStreaming(context.Background())
@@ -112,7 +115,7 @@ func (g *GreeterClient) SayHelloBidirectionalStreaming() {
 				log.Fatalf("failed to receive message from server via bidirectional stream: %v", err)
 			}
 
-			log.Println(res.Message)
+			log.Println("got response:", res.Message)
 		}
 	}()
 
@@ -121,10 +124,10 @@ func (g *GreeterClient) SayHelloBidirectionalStreaming() {
 			Message: name,
 		}
 
+		log.Println("sending bidirectional streaming request:", name)
 		if err := stream.Send(req); err != nil {
 			log.Fatalf("failed to send message to server via bidirectional stream: %v", err)
 		}
-		log.Printf("sent the request message to server - %s", name)
 		time.Sleep(time.Second * 2)
 	}
 
